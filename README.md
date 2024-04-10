@@ -2,7 +2,7 @@
 
 ### Wireframes
 
-![Plan of Actions](./assets/wireframes.svg)
+![Plan of Actions](./assets/Wireframes.svg)
 
 ### API Details
 
