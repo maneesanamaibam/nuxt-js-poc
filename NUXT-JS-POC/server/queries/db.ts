@@ -1,13 +1,12 @@
 import pg from "pg";
 import { type PoolClient, type Pool } from "pg";
 
-const config = useRuntimeConfig();
 export class PostgresDBClient {
   private static _poolInstance: Pool;
   private static _clientInstance: PoolClient;
   static async init() {
     PostgresDBClient._poolInstance = new pg.Pool({
-      connectionString: config.postgresConnectionStringURL,
+      connectionString: process.env.NUXT_POSTGRES_CONNECTION_STRING_URL,
     });
     PostgresDBClient._clientInstance =
       await PostgresDBClient._poolInstance.connect();
