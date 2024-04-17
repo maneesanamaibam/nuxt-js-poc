@@ -5,11 +5,15 @@ export class PostgresDBClient {
   private static _poolInstance: Pool;
   private static _clientInstance: PoolClient;
   static async init() {
-    PostgresDBClient._poolInstance = new pg.Pool({
-      connectionString: process.env.NUXT_POSTGRES_CONNECTION_STRING_URL,
-    });
-    PostgresDBClient._clientInstance =
-      await PostgresDBClient._poolInstance.connect();
+    try {
+      PostgresDBClient._poolInstance = new pg.Pool({
+        connectionString: process.env.NUXT_POSTGRES_CONNECTION_STRING_URL,
+      });
+      PostgresDBClient._clientInstance =
+        await PostgresDBClient._poolInstance.connect();
+    } catch (err) {
+      console.log("Error connecting to database: ", err);
+    }
   }
 
   static getClient() {
