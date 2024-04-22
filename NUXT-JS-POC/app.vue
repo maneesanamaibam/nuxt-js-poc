@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <RecipeStep />
-    <RecipeIngredient />
-    <ImagePreview />
-  </div>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>

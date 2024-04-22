@@ -12,15 +12,12 @@ export default async function getAllRecipes() {
   const ingredientsResult = await PostgresDBClient.query(
     "SELECT id,recipe_id,name,measurement,quantity,image_file FROM ingredients WHERE recipe_id IN (SELECT id FROM recipes);"
   );
+  const result = getRightRecipeFormatFromDBFormat(
+    recipesResult,
+    recipeStepsResult,
+    ingredientsResult
+  );
+  await PostgresDBClient.query("COMMIT");
 
-  for (let recipe of recipesResult.rows) {
-    recipe.recipe_image = Buffer.from(recipe.recipe_image).toString("base64");
-    recipe.steps = recipeStepsResult.rows.filter(
-      (step) => step.recipe_id === recipe.id
-    );
-    recipe.ingredients = ingredientsResult.rows.filter(
-      (ingredient) => ingredient.recipe_id === recipe.id
-    );
-  }
-  return recipesResult.rows;
+  return result;
 }

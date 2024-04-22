@@ -16,16 +16,11 @@ export default async function getRecipeById(id: string | number) {
     "SELECT id,recipe_id,name,measurement,quantity,image_file FROM ingredients WHERE recipe_id= $1;",
     [id]
   );
-
-  for (let recipe of recipesResult.rows) {
-    recipe.recipe_image = Buffer.from(recipe.recipe_image).toString("base64");
-    recipe.steps = recipeStepsResult.rows.filter(
-      (step) => step.recipe_id === recipe.id
-    );
-    recipe.ingredients = ingredientsResult.rows.filter(
-      (ingredient) => ingredient.recipe_id === recipe.id
-    );
-  }
-  await PostgresDBClient.query("COMMIT;");
-  return recipesResult.rows;
+  const result = getRightRecipeFormatFromDBFormat(
+    recipesResult,
+    recipeStepsResult,
+    ingredientsResult
+  );
+  await PostgresDBClient.query("COMMIT");
+  return result[0];
 }

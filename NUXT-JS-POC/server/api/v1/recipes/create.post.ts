@@ -1,3 +1,4 @@
+import { RecipeFileNamingConstants } from "~/constants/namingContants";
 import createRecipe from "~/server/queries/createRecipe";
 import { PostgresDBClient } from "~/server/queries/db";
 import { Recipe } from "~/server/types/recipeType";
@@ -74,30 +75,46 @@ export function getPayloadRightFormatStatus(payload: Recipe) {
 }
 
 export function transformMultipartDataIntoCompatibleFormat(
-  payload: any
+  payload: MultiPartData[] | undefined
 ): Recipe {
   const keys = ["recipeImage", "imageFile"];
   const result: {
     [key: string]: any;
   } = {};
 
-  if (Array.isArray(payload)) {
-    for (const item of payload) {
-      if (item.name !== "recipeImage") {
-        result[item.name] =
-          item.name === "ingredients" || item.name === "recipeSteps"
-            ? JSON.parse(item.data.toString())
-            : item.data.toString();
-      } else {
-        result.recipeImage = item.data;
-      }
+  const mapper = new Map();
+
+  payload?.forEach(({ name, data }) => {
+    if (name === "recipeImage") {
+      result[name as string] = data;
+    } else if (
+      name?.startsWith(RecipeFileNamingConstants.INGREDIENT_FILE_NAMING)
+    ) {
+      const ingredientName = name.split("_")[1];
+      mapper.set(ingredientName, data);
+    } else if (
+      name?.startsWith(RecipeFileNamingConstants.RECIPE_STEP_FILE_NAMING)
+    ) {
+      const step = name.split("_")[1];
+      mapper.set(+step, data);
+    } else {
+      result[name as string] =
+        name === "ingredients" || name === "recipeSteps"
+          ? JSON.parse(data.toString())
+          : data.toString();
     }
+  });
+  for (let itm of result.ingredients) {
+    itm.imageFile = mapper.get(itm.name);
   }
+  for (const itm of result.recipeSteps) {
+    itm.imageFile = mapper.get(itm.step);
+  }
+
   return result as Recipe;
 }
 export default defineEventHandler(async (event) => {
   const payloadBody = await readMultipartFormData(event);
-
   const transformedPayload =
     transformMultipartDataIntoCompatibleFormat(payloadBody);
   const { status, errorMessage } =

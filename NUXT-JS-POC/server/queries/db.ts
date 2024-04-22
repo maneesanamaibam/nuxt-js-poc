@@ -12,7 +12,7 @@ export class PostgresDBClient {
       PostgresDBClient._clientInstance =
         await PostgresDBClient._poolInstance.connect();
     } catch (err) {
-      console.log("Error connecting to database: ", err);
+      console.log("Error connecting to database: ", err.message);
     }
   }
 
