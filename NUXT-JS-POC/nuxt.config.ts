@@ -16,8 +16,10 @@ export default defineNuxtConfig({
     storesDirs: ["./stores/**"],
   },
   authJs: {
-    guestRedirectTo: "/login",
-    authenticatedRedirectTo: "/",
+    verifyClientOnEveryRequest: true,
+    guestRedirectTo: "/", // where to redirect if the user is not authenticated
+    authenticatedRedirectTo: "/", // where to redirect if the user is authenticated
+    baseUrl: process.env.NUXT_NEXTAUTH_URL, // should be something like https://www.my-app.com
   },
   runtimeConfig: {
     authJs: {
@@ -29,8 +31,7 @@ export default defineNuxtConfig({
     },
     public: {
       authJs: {
-        baseUrl:
-          process.env.NUXT_NEXTAUTH_URL || "https://nuxt-js-poc.onrender.com", // The URL of your deployed app (used for origin Check in production)
+        baseUrl: process.env.NUXT_NEXTAUTH_URL, // The URL of your deployed app (used for origin Check in production)
         verifyClientOnEveryRequest: true, // whether to hit the /auth/session endpoint on every client request
       },
     },
