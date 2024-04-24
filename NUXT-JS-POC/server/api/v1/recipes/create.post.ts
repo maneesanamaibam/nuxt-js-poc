@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RecipeFileNamingConstants } from "~/constants/namingContants";
 import createRecipe from "~/server/queries/createRecipe";
 import { PostgresDBClient } from "~/server/queries/db";
 import { Recipe } from "~/server/types/recipeType";
 
-export function getPayloadRightFormatStatus(payload: Recipe) {
+export function getPayloadRightFormatStatus(payload: Recipe): {
+  status: boolean;
+  errorMessage: string;
+} {
   const recipeKeys = [
     "recipeSteps",
     "name",
@@ -77,7 +81,6 @@ export function getPayloadRightFormatStatus(payload: Recipe) {
 export function transformMultipartDataIntoCompatibleFormat(
   payload: MultiPartData[] | undefined
 ): Recipe {
-  const keys = ["recipeImage", "imageFile"];
   const result: {
     [key: string]: any;
   } = {};
@@ -90,12 +93,12 @@ export function transformMultipartDataIntoCompatibleFormat(
     } else if (
       name?.startsWith(RecipeFileNamingConstants.INGREDIENT_FILE_NAMING)
     ) {
-      const ingredientName = name.split("_")[1];
+      const [, ingredientName] = name.split("_");
       mapper.set(ingredientName, data);
     } else if (
       name?.startsWith(RecipeFileNamingConstants.RECIPE_STEP_FILE_NAMING)
     ) {
-      const step = name.split("_")[1];
+      const [, step] = name.split("_");
       mapper.set(+step, data);
     } else {
       result[name as string] =
@@ -104,7 +107,7 @@ export function transformMultipartDataIntoCompatibleFormat(
           : data.toString();
     }
   });
-  for (let itm of result.ingredients) {
+  for (const itm of result.ingredients) {
     itm.imageFile = mapper.get(itm.name);
   }
   for (const itm of result.recipeSteps) {

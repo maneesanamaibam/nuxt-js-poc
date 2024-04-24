@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Recipe } from "../types/recipeType";
 import { PostgresDBClient } from "./db";
 
 export default async function updateRecipeById(
   recipeId: string,
   recipe: Recipe
-) {
-  function getRequiredFormat() {
+): Promise<unknown> {
+  function getRequiredFormat(): any {
     const { recipeSteps, ingredients } = recipe;
     const recipeStepsAccumulatedValues = [];
     const ingredientsAccumulatedValues = [];
@@ -65,10 +66,23 @@ export default async function updateRecipeById(
   }
 
   // // INSERT RECIPE CATEGORY
-  await PostgresDBClient.query(
-    `UPDATE recipe_categories SET category_name=$1;`,
+  const recipeCategoryResult = await PostgresDBClient.query(
+    "SELECT category_name FROM recipe_categories WHERE category_name=$1;",
     [recipeData[0]]
   );
+
+  if (recipeCategoryResult.rowCount === 0) {
+    await PostgresDBClient.query(
+      "INSERT INTO recipe_categories (category_name) VALUES ($1);",
+      [recipeData[0]]
+    );
+  } else {
+    await PostgresDBClient.query(
+      `UPDATE recipe_categories SET category_name=$1;`,
+      [recipeData[0]]
+    );
+  }
+
   // INSERT RECIPE
   await PostgresDBClient.query(
     `UPDATE recipes SET recipe_category=$2,name=$3, recipe_image=$4, description=$5, total_steps=$6 WHERE id=$1;`,
@@ -90,6 +104,7 @@ export default async function updateRecipeById(
   }
 
   for (const ingredient of ingredients) {
+    // eslint-disable-next-line no-await-in-loop
     await PostgresDBClient.query(
       `UPDATE ingredients SET measurement=$2, name=$3, quantity=$4, image_file=$5 WHERE id=$1;`,
       ingredient
@@ -109,6 +124,7 @@ export default async function updateRecipeById(
     throw new Error("Invalid recipe step IDs provided");
   }
   for (const recipeStep of recipeSteps) {
+    // eslint-disable-next-line no-await-in-loop
     await PostgresDBClient.query(
       `UPDATE recipe_steps SET step=$2, step_details=$3, image_file=$4 WHERE step_id=$1;`,
       recipeStep

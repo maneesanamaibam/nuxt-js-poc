@@ -19,9 +19,9 @@
 
         <button
           v-if="status === 'authenticated'"
-          @click="signOut()"
           type="button"
           class="p-3 text-[#022c22] font-semibold rounded-md bg-[#e0f2fe] m-2"
+          @click="signOut()"
         >
           Logout
         </button>

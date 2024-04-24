@@ -1,5 +1,5 @@
 import { PostgresDBClient } from "./db";
-export const createDBTables = async () => {
+export const createDBTables = async (): Promise<void> => {
   const createTablesQuery = `
     DO $$
     BEGIN
@@ -43,7 +43,7 @@ export const createDBTables = async () => {
         -- Create recipe_categories table
   
         CREATE TABLE IF NOT EXISTS recipe_categories(
-            category_name VARCHAR(255) UNIQUE NOT NULL,
+            category_name VARCHAR(255) UNIQUE PRIMARY KEY NOT NULL,
             description VARCHAR(1000)
         );
   
@@ -66,10 +66,11 @@ export const createDBTables = async () => {
   try {
     await PostgresDBClient.init();
     await PostgresDBClient.query(createTablesQuery);
+    // eslint-disable-next-line no-console
     console.log("Tables created successfully");
   } catch (err) {
     console.error("Error creating tables", err);
   } finally {
-    await PostgresDBClient.releaseClient();
+    PostgresDBClient.releaseClient();
   }
 };

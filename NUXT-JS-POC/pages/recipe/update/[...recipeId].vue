@@ -2,15 +2,24 @@
   <div>update recipe</div>
 
   <!-- <pre> {{ recipe }}</pre> -->
-  <CreateRecipeForm :formValues="recipe" />
+  <RecipeForm
+    :formValues="(recipe as RecipeFormProps)"
+    :externalFormDataHandler="recipeFormExternalHandlerFunction"
+  />
 </template>
 
 <script lang="ts" setup>
-  const recipeId = useRoute().params.recipeId;
+  import type { RecipeFormProps } from "~/types/Recipe";
 
-  const { getRecipeById } = useRecipeStore();
+  const recipeId = useRoute().params.recipeId as string;
+
+  const { getRecipeById, updateRecipeById } = useRecipeStore();
+
+  async function recipeFormExternalHandlerFunction(recipeFormData: FormData) {
+    await updateRecipeById(recipeFormData, recipeId);
+  }
+
   const recipe = await getRecipeById(recipeId);
-  console.log(recipe);
 </script>
 
 <style></style>

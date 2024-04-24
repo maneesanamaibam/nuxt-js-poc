@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { QueryResult } from "pg";
 
 export default function (
   recipesResult: QueryResult<any>,
   recipeStepsResult: QueryResult<any>,
   ingredientsResult: QueryResult<any>
-) {
+): any[] {
   const result = [];
-  for (let recipe of recipesResult.rows) {
+  for (const recipe of recipesResult.rows) {
     const temp: any = {};
     temp.id = recipe.id;
     temp.name = recipe.name;

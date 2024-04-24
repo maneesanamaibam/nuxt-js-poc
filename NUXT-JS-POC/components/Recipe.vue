@@ -18,9 +18,9 @@
       <h3 class="text-xl font-semibold mb-2">Ingredients</h3>
       <div class="flex flex-wrap gap-4">
         <div
-          class="w-1/2"
           v-for="ingredient in ingredients"
           :key="ingredient.id"
+          class="w-1/2"
         >
           <div class="mb-2">
             <!-- Image for ingredients -->
@@ -44,7 +44,7 @@
       <h3 class="text-xl font-semibold mb-2">Steps</h3>
       <p>Total Steps: {{ totalSteps }}</p>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="mb-2" v-for="step in steps" :key="step.stepId">
+        <div v-for="step in steps" :key="step.stepId" class="mb-2">
           <!-- Image for step -->
           <img
             :src="step.imageFile"
@@ -66,7 +66,6 @@
 
   const {
     description,
-    id,
     ingredients,
     name,
     totalSteps,

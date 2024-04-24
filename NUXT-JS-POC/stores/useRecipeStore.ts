@@ -73,11 +73,45 @@ export const useRecipeStore = defineStore("recipe-store", () => {
   }
 
   async function getRecipeById(id: string) {
-    console.log("got the id", id, recipes.value);
     if (recipes.value.length === 0) {
       await getAllRecipes();
     }
     return recipes.value.find((recipe) => recipe.id === id);
+  }
+
+  async function createNewRecipe(newRecipeData: FormData) {
+    const { error } = await useFetch("/api/v1/recipes/create", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+      },
+      body: newRecipeData,
+      redirect: "follow",
+      lazy: true,
+      server: false,
+    });
+    if (error.value) {
+      throw error.value;
+    }
+  }
+
+  async function updateRecipeById(
+    updatedRecipeData: FormData,
+    recipeId: string
+  ) {
+    const { error } = await useFetch(`/api/v1/recipes/${recipeId}/update`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+      },
+      body: updatedRecipeData,
+      redirect: "follow",
+      lazy: true,
+      server: false,
+    });
+    if (error.value) {
+      throw error.value;
+    }
   }
 
   return {
@@ -88,5 +122,7 @@ export const useRecipeStore = defineStore("recipe-store", () => {
     deleteRecipeById,
     recipeCategories,
     getRecipeById,
+    createNewRecipe,
+    updateRecipeById,
   };
 });

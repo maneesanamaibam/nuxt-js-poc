@@ -35,31 +35,31 @@
 
   <div>
     <!-- {{ recipes }} -->
-
-    <RecipeCard
-      v-if="recipeCardData.length > 0"
-      v-for="recipe in recipeCardData"
-      v-bind="recipe"
-      @click="recipeCardNavigationHandler(recipe.id)"
-      :key="recipe.id"
-    >
-      <template #recipe-card-actions>
-        <div class="flex gap-2">
-          <button
-            class="bg-red-500 text-white p-2 rounded-md"
-            @click="deleteRecipe(recipe.id)"
-          >
-            Delete Recipe
-          </button>
-          <button
-            @click="updateRecipe(recipe.id)"
-            class="bg-blue-500 text-white p-2 rounded-md"
-          >
-            Update Recipe
-          </button>
-        </div>
-      </template>
-    </RecipeCard>
+    <div v-if="recipeCardData.length > 0">
+      <RecipeCard
+        v-for="recipe in recipeCardData"
+        v-bind="recipe"
+        :key="recipe.id"
+        @click="recipeCardNavigationHandler(recipe.id as string)"
+      >
+        <template #recipe-card-actions>
+          <div class="flex gap-2">
+            <button
+              class="bg-red-500 text-white p-2 rounded-md"
+              @click="deleteRecipe(recipe.id as string)"
+            >
+              Delete Recipe
+            </button>
+            <button
+              class="bg-blue-500 text-white p-2 rounded-md"
+              @click="updateRecipe(recipe.id as string)"
+            >
+              Update Recipe
+            </button>
+          </div>
+        </template>
+      </RecipeCard>
+    </div>
   </div>
   <!-- <RecipeCard /> -->
 </template>
@@ -70,21 +70,17 @@
   });
 
   const router = useRouter();
-  const { getAllRecipes, filterRecipeCards, deleteRecipeById } =
-    useRecipeStore();
+  const { getAllRecipes, deleteRecipeById } = useRecipeStore();
   const { recipeCardData } = storeToRefs(useRecipeStore());
   await useAsyncData("recipe-store", () => getAllRecipes().then(() => true));
 
-  function deleteRecipe(recipeId) {
-    console.log("delete recipe id", recipeId);
+  function deleteRecipe(recipeId: string) {
     deleteRecipeById(recipeId);
   }
-  function updateRecipe(recipeId) {
-    console.log("update recipe id", recipeId);
+  function updateRecipe(recipeId: string) {
     router.push({ name: "recipe-update-recipeId", params: { recipeId } });
   }
-  function recipeCardNavigationHandler(recipeId) {
-    console.log(recipeId);
+  function recipeCardNavigationHandler(recipeId: string) {
     router.push({ name: "recipe-recipeId", params: { recipeId } });
   }
   onMounted(async () => {

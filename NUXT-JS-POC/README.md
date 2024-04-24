@@ -62,7 +62,7 @@
       -- Create recipe_categories table
 
       CREATE TABLE IF NOT EXISTS recipe_categories(
-          category_name VARCHAR(255) UNIQUE NOT NULL,
+          category_name VARCHAR(255)  NOT NULL,
           description VARCHAR(1000)
       );
 

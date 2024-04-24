@@ -1,0 +1,36 @@
+{
+  "root": true,
+  "extends": ["@nuxt/eslint-config", "eslint-config-js-ts"],
+
+  "parser": "vue-eslint-parser",
+  "parserOptions": {
+    "parser": "@typescript-eslint/parser",
+    "project": ["./tsconfig.json"]
+  },
+  "rules": {
+    // space and indentation rule
+    "vue/html-indent": "off",
+    "vue/html-self-closing": "off",
+    "vue/singleline-html-element-content-newline": "off",
+    "vue/multiline-html-element-content-newline": "off",
+    "vue/max-attributes-per-line": "off",
+    "vue/first-attribute-linebreak": "off",
+    "vue/attribute-hyphenation": "off",
+    "vue/html-closing-bracket-spacing": "off",
+    "vue/multi-word-component-names": "off",
+    "vue/no-multiple-template-root": "off",
+    "vue/html-closing-bracket-newline": "off",
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+
+    // turn off as there is lot of errors
+    "@typescript-eslint/no-magic-numbers": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.vue"],
+      "rules": {
+        "no-undef": "off"
+      }
+    }
+  ]
+}

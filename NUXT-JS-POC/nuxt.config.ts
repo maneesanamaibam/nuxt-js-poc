@@ -6,7 +6,12 @@ export default defineNuxtConfig({
   alias: {
     cookie: resolve(__dirname, "node_modules/cookie"),
   },
-  modules: ["@nuxtjs/tailwindcss", "@pinia/nuxt", "@hebilicious/authjs-nuxt"],
+  modules: [
+    "@nuxtjs/tailwindcss",
+    "@pinia/nuxt",
+    "@hebilicious/authjs-nuxt",
+    "@nuxtjs/eslint-module",
+  ],
   pinia: {
     storesDirs: ["./stores/**"],
   },
@@ -16,9 +21,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     authJs: {
-      secret:
-        process.env.NUXT_NEXTAUTH_SECRET ??
-        "vyf6/WNdX5X2RQZTtVqtQfXbMNlzrUMc30H4QpHt/wg=", // You can generate one with `openssl rand -base64 32`
+      secret: process.env.NUXT_NEXTAUTH_SECRET, // You can generate one with `openssl rand -base64 32`
     },
     github: {
       clientId: process.env.NUXT_GITHUB_CLIENT_ID,
@@ -30,6 +33,11 @@ export default defineNuxtConfig({
     //         verifyClientOnEveryRequest: true // whether to hit the /auth/session endpoint on every client request
     //     }
     // }
+  },
+  eslint: {
+    lintOnStart: false,
+    emitError: false,
+    emitWarning: false,
   },
   hooks: {
     listen: () => {

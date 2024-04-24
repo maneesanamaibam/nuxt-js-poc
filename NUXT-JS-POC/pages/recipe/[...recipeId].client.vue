@@ -10,6 +10,8 @@
 </template>
 
 <script lang="ts" setup>
+  import type { Recipe } from "~/types/Recipe";
+
   const recipeId = useRoute().params.recipeId;
 
   const {

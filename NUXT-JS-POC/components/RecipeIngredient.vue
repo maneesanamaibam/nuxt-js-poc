@@ -8,9 +8,9 @@
           >Name</label
         >
         <input
+          id="name"
           v-model="ingredientForm.name"
           type="text"
-          id="name"
           name="name"
           class="mt-1 block w-full rounded-md border-none shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-3"
         />
@@ -20,9 +20,9 @@
           >Quantity</label
         >
         <input
+          id="quantity"
           v-model="ingredientForm.quantity"
           type="number"
-          id="quantity"
           name="quantity"
           class="mt-1 block w-full rounded-md border-none shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-3"
         />
@@ -58,10 +58,10 @@
                 <span>Upload a file</span>
                 <input
                   class="sr-only"
-                  @input="imageFileInputHandler($event)"
                   accept="image/png, image/jpeg"
                   name="imageFile"
                   type="file"
+                  @input="imageFileInputHandler($event)"
                 />
               </label>
               <p class="pl-1">or drag and drop</p>
@@ -71,7 +71,7 @@
           <p class="text-xs text-gray-500 mt-3">
             {{
               ingredientForm.imageFile
-                ? ingredientForm.imageFile.name
+                ? (ingredientForm.imageFile as File).name
                 : "No file selected"
             }}
           </p>
@@ -84,8 +84,8 @@
         >
         <div class="mt-1">
           <select
-            v-model="ingredientForm.measurement"
             id="measurement"
+            v-model="ingredientForm.measurement"
             name="measurement"
             class="block w-full rounded-md border-none shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-3"
           >
@@ -104,8 +104,8 @@
           >Add New Measurement</label
         >
         <input
-          type="text"
           id="newMeasurement"
+          type="text"
           name="newMeasurement"
           class="mt-1 block w-full rounded-md border-none shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-3"
         />
@@ -113,39 +113,58 @@
 
       <div>
         <button
-          @click="$emit('cancel-ingredient-form')"
           type="button"
           class="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-indigo-600 focus:outline-none focus:bg-indigo-600 mb-3"
+          @click="$emit('cancel-ingredient-form')"
         >
           Cancel
         </button>
         <button
-          @click="ingredientFormSubmitHandler"
           type="button"
           class="w-full bg-indigo-500 text-white py-2 px-4 rounded-md hover:bg-indigo-600 focus:outline-none focus:bg-indigo-600"
+          @click="ingredientFormSubmitHandler"
         >
-          Add Ingredient
+          {{ isRecipeIngredientUpdateMode ? "Update" : "Add" }} Ingredient
         </button>
       </div>
     </form>
+    ingredientValues {{ props }}
   </div>
 </template>
 
 <script lang="ts" setup>
+  import type { IngredientForm } from "~/types/Recipe";
+
   const emit = defineEmits([
     "ingredient-form-data-submit",
     "cancel-ingredient-form",
   ]);
-  const ingredientForm = ref({
+  const props = defineProps<{
+    ingredientValues?: IngredientForm;
+  }>();
+
+  const ingredientForm = ref<IngredientForm>({
     imageFile: null,
     measurement: "",
     name: "",
     quantity: 0,
   });
 
-  function imageFileInputHandler(event) {
-    console.log(event.target.files[0]);
-    ingredientForm.value.imageFile = event.target.files[0];
+  const isRecipeIngredientUpdateMode = computed(() => {
+    return !!props.ingredientValues;
+  });
+
+  onMounted(() => {
+    if (isRecipeIngredientUpdateMode.value) {
+      ingredientForm.value = structuredClone(
+        toRaw(props.ingredientValues)
+      ) as IngredientForm;
+    }
+  });
+
+  function imageFileInputHandler(event: Event) {
+    ingredientForm.value.imageFile = (event.target as HTMLInputElement)
+      .files?.[0] as File;
   }
 
   function resetIngredientForm() {
@@ -155,7 +174,6 @@
     ingredientForm.value.quantity = 0;
   }
   function ingredientFormSubmitHandler() {
-    console.log("Ingredient form submit");
     const hasFormError = () => {
       if (!ingredientForm.value.imageFile) {
         return true;

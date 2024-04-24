@@ -4,7 +4,7 @@ import getRecipeById from "~/server/queries/getRecipeById";
 export default defineEventHandler(async (event) => {
   const recipeId = getRouterParam(event, "recipeId");
   try {
-    const response = await getRecipeById(recipeId || "");
+    const response = await getRecipeById(recipeId ?? "");
     return response;
   } catch (err: Error | unknown) {
     const errMsg = err instanceof Error ? err.message : JSON.stringify(err);

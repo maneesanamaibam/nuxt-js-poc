@@ -8,10 +8,10 @@
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">{{ title }}</h2>
         <button
-          @click="$emit('modal-close')"
-          type="button"
           class="text-gray-500 hover:text-gray-700 focus:outline-none"
+          type="button"
           aria-label="Close modal"
+          @click="$emit('modal-close')"
         >
           <svg
             class="w-6 h-6"
@@ -39,6 +39,7 @@
 </template>
 
 <script lang="ts" setup>
+  defineEmits(["modal-close"]);
   const { title } = defineProps<{
     title?: string;
   }>();

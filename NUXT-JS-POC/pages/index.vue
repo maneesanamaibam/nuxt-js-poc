@@ -2,24 +2,28 @@
   <div class="flex justify-center items-center mb-4 gap-5">
     <div>
       <span
-        @click="filterByTagName('ALL')"
         class="inline-block bg-blue-500 text-white text-xs font-semibold px-3 py-2 m-2 uppercase rounded-lg hover:cursor-pointer"
+        @click="filterByTagName('ALL')"
         >ALL</span
       >
       <span
         v-for="tag in recipeCategories"
-        @click="filterByTagName(tag)"
         :key="tag"
         class="inline-block bg-blue-500 text-white text-xs font-semibold px-3 py-2 m-2 uppercase rounded-lg hover:cursor-pointer"
+        @click="filterByTagName(tag)"
         >{{ tag }}</span
       >
     </div>
     <div class="relative">
       <input
-        @input="filterRecipes($event.target.value.trim().toLowerCase())"
-        type="text"
         class="block w-full py-2 pl-10 pr-4 leading-tight bg-white border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+        type="text"
         placeholder="Search..."
+        @input="
+          filterRecipes(
+            ($event.target as HTMLInputElement).value.trim().toLowerCase()
+          )
+        "
       />
       <div
         class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
@@ -45,11 +49,11 @@
   <div>
     <p v-if="isLoading" class="text-center">Loading..."></p>
     <RecipeCard
-      v-else
       v-for="recipe in recipeCardData"
+      v-else
       v-bind="recipe"
-      @click="recipeCardNavigationHandler(recipe.id)"
       :key="recipe.id"
+      @click="recipeCardNavigationHandler(recipe.id as string)"
     />
   </div>
   <!-- <RecipeCard /> -->
@@ -60,7 +64,6 @@
     middleware: "auth",
   });
 
-  const searchValue = ref("");
   const router = useRouter();
   const isLoading = ref(false);
 
@@ -69,7 +72,6 @@
   await useAsyncData("recipe-store", () => getAllRecipes().then(() => true));
 
   function filterRecipes(recipeSearchText: string) {
-    console.log("recipe search text", recipeSearchText);
     filterRecipeCards(recipeSearchText);
   }
 
@@ -77,12 +79,11 @@
     filterRecipeCards(tagName, true);
   }
 
-  function recipeCardNavigationHandler(recipeId) {
+  function recipeCardNavigationHandler(recipeId: string) {
     router.push({ name: "recipe-recipeId", params: { recipeId } });
   }
 
   onMounted(async () => {
-    console.log("onMounted home page");
     isLoading.value = true;
     await getAllRecipes();
     isLoading.value = false;

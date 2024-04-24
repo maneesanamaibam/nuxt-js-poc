@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Recipe } from "../types/recipeType";
 import { PostgresDBClient } from "./db";
 
-export default async function createRecipe(recipe: Recipe) {
-  function getRequiredFormat() {
+export default async function createRecipe(recipe: Recipe): Promise<unknown> {
+  function getRequiredFormat(): any {
     const { recipeSteps, ingredients } = recipe;
     const recipeStepsAccumulatedValues = [];
     const ingredientsAccumulatedValues = [];
@@ -74,7 +75,7 @@ export default async function createRecipe(recipe: Recipe) {
   );
 
   // INSERT INGREDIENTS
-  const getIngredientsQueryValues = () => {
+  const getIngredientsQueryValues = (): any => {
     const values = [];
     for (let i = 0; i < noOfIngredients; i++) {
       values.push(
@@ -88,7 +89,7 @@ export default async function createRecipe(recipe: Recipe) {
     return values.join(",");
   };
 
-  const getMeasurementUnitsQueryValues = () => {
+  const getMeasurementUnitsQueryValues = (): any => {
     const values = [];
     for (let i = 0; i < measurementUnits.length; i++) {
       values.push(`($${i + 1})`);
@@ -105,7 +106,7 @@ export default async function createRecipe(recipe: Recipe) {
     ingredients
   );
   // INSERT RECIPE STEPS
-  const getRecipesStepsQueryValues = () => {
+  const getRecipesStepsQueryValues = (): any => {
     const values = [];
     for (let i = 0; i < noOfRecipeSteps; i++) {
       values.push(

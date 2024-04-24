@@ -9,9 +9,9 @@
           >Step</label
         >
         <input
+          id="step"
           v-model.number="form.step"
           type="number"
-          id="step"
           name="step"
           class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring focus:ring-indigo-200 px-4 py-2"
         />
@@ -21,8 +21,8 @@
           >Step Details</label
         >
         <textarea
-          v-model="form.stepDetails"
           id="stepDetails"
+          v-model="form.stepDetails"
           name="stepDetails"
           rows="3"
           class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring focus:ring-indigo-200 px-4 py-2"
@@ -59,10 +59,10 @@
                 <span>Upload a file</span>
                 <input
                   class="sr-only"
-                  @input="imageFileInputHandler($event)"
                   accept="image/png, image/jpeg"
                   name="imageFile"
                   type="file"
+                  @input="imageFileInputHandler($event)"
                 />
               </label>
               <p class="pl-1">or drag and drop</p>
@@ -70,48 +70,62 @@
           </div>
 
           <p class="text-xs text-gray-500 mt-3">
-            {{ form.imageFile ? form.imageFile.name : "No file selected" }}
+            {{
+              form.imageFile
+                ? (form.imageFile as File).name
+                : "No file selected"
+            }}
           </p>
           <p class="text-xs text-gray-500 mt-3">PNG, JPG, GIF up to 10MB</p>
         </div>
       </div>
       <div>
         <button
-          @click="$emit('cancel-recipe-step-form')"
           type="button"
           class="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-indigo-600 focus:outline-none focus:bg-indigo-600 mb-3"
+          @click="$emit('cancel-recipe-step-form')"
         >
           Cancel
         </button>
         <button
-          @click="recipeStepFormHandler"
           type="button"
           class="w-full bg-indigo-500 text-white py-2 px-4 rounded-md hover:bg-indigo-600 focus:outline-none focus:bg-indigo-600"
+          @click="recipeStepFormHandler"
         >
-          Add Step
+          {{ isFormUpdateMode ? "Updated" : "Add" }} Step
         </button>
       </div>
     </form>
   </div>
 </template>
 <script setup lang="ts">
-  interface RecipeStepForm {
-    step: number;
-    stepDetails: string;
-    imageFile: File | null;
-  }
+  import type { RecipeStepForm } from "~/types/Recipe";
+
   const emit = defineEmits([
     "recipe-step-form-data-submit",
     "cancel-recipe-step-form",
   ]);
-  const form = ref({
+
+  const props = defineProps<{
+    stepValues?: RecipeStepForm;
+  }>();
+  const form = ref<RecipeStepForm>({
     step: 0,
     stepDetails: "",
     imageFile: null,
   });
-  function imageFileInputHandler(event) {
-    console.log("changing", event.target.files[0]);
-    form.value.imageFile = event.target.files[0];
+
+  const isFormUpdateMode = computed(() => {
+    return !!props.stepValues;
+  });
+  onMounted(() => {
+    if (props.stepValues) {
+      form.value = structuredClone(toRaw(props.stepValues));
+    }
+  });
+  function imageFileInputHandler(event: Event) {
+    form.value.imageFile = (event.target as HTMLInputElement)
+      .files?.[0] as File;
   }
 
   function resetRecipeStepForm() {
@@ -134,7 +148,7 @@
       emit("recipe-step-form-data-submit", structuredClone(toRaw(form.value)));
       resetRecipeStepForm();
     } else {
-      console.error("Recipe ste form data error: ", form.value);
+      console.error("Recipe step form data error: ", form.value);
     }
   }
 </script>

@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const result = await updateRecipeById(recipeId || "", transformedPayload);
+    const result = await updateRecipeById(recipeId ?? "", transformedPayload);
     return {
       data: result,
       status: "success",

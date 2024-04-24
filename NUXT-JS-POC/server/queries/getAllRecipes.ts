@@ -1,5 +1,5 @@
 import { PostgresDBClient } from "./db";
-export default async function getAllRecipes() {
+export default async function getAllRecipes(): Promise<unknown> {
   await PostgresDBClient.init();
   await PostgresDBClient.query("BEGIN");
 

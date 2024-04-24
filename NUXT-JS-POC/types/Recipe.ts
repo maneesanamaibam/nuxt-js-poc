@@ -11,7 +11,7 @@ interface Recipe {
 
 interface Ingredient {
   id: string;
-  imageFile: File | null;
+  imageFile: File | null | string;
   measurement: string;
   name: string;
   quantity: number;
@@ -23,15 +23,21 @@ interface RecipeStep {
   step: number;
   stepDetails: string;
   recipeId: string;
-  imageFile: File | null;
+  imageFile: File | null | string;
 }
-
+type RecipeStepForm = Pick<RecipeStep, "step" | "stepDetails" | "imageFile"> & {
+  stepId?: string;
+};
 type RecipeStepProps = Omit<RecipeStep, "imageFile"> & {
   imageFile: string;
 };
 type IngredientProps = Omit<Ingredient, "imageFile"> & {
   imageFile: string;
 };
+type IngredientForm = Pick<
+  Ingredient,
+  "imageFile" | "measurement" | "name" | "quantity"
+> & { id?: string };
 
 type RecipePageProps = Omit<Recipe, "recipeImage" | "ingredients" | "steps"> & {
   recipeImage: string;
@@ -39,9 +45,31 @@ type RecipePageProps = Omit<Recipe, "recipeImage" | "ingredients" | "steps"> & {
   steps: RecipeStepProps[];
 };
 interface RecipeCard {
+  id?: string;
   name: string;
-  recipeImage: File | null | string;
+  recipeImage: string;
   description: string;
   recipeCategory: string;
 }
-export type { Recipe, Ingredient, RecipeStep, RecipePageProps, RecipeCard };
+
+type RecipeForm = Omit<Recipe, "id" | "ingredients" | "steps"> & {
+  ingredients: IngredientForm[];
+  recipeSteps: RecipeStepForm[];
+};
+
+type RecipeFormProps = Omit<RecipeForm, "imageFile" | "recipeSteps"> & {
+  recipeImage: string;
+  steps: RecipeStepForm[];
+};
+
+export type {
+  Recipe,
+  Ingredient,
+  RecipeStep,
+  RecipePageProps,
+  RecipeCard,
+  IngredientForm,
+  RecipeStepForm,
+  RecipeForm,
+  RecipeFormProps,
+};

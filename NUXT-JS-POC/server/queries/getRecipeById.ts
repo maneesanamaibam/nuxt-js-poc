@@ -1,6 +1,8 @@
 import { PostgresDBClient } from "./db";
 
-export default async function getRecipeById(id: string | number) {
+export default async function getRecipeById(
+  id: string | number
+): Promise<unknown> {
   await PostgresDBClient.init();
   await PostgresDBClient.query("BEGIN");
 

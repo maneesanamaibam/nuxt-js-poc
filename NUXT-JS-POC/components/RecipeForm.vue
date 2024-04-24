@@ -2,15 +2,14 @@
   <div class="max-w-3xl mx-auto bg-white p-8 rounded-md shadow-md">
     <h2 class="text-2xl font-bold mb-4">Create Recipe Form</h2>
     <form class="space-y-6">
-      {{ createRecipeForm }}
       <div>
         <label for="name" class="block text-sm font-medium text-gray-700"
           >Recipe Name</label
         >
         <input
-          v-model="createRecipeForm.name"
-          type="text"
           id="name"
+          v-model="recipeForm.name"
+          type="text"
           name="name"
           class="mt-1 block w-full rounded-md border-none shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-3"
         />
@@ -21,8 +20,8 @@
           >Description
         </label>
         <textarea
-          v-model="createRecipeForm.description"
           id="description"
+          v-model="recipeForm.description"
           name="description"
           rows="3"
           class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring focus:ring-indigo-200 px-4 py-2"
@@ -67,11 +66,11 @@
               >
                 <span>Upload a file</span>
                 <input
-                  @change="createRecipeFileHandler($event)"
                   id="file-upload"
                   name="imageFile"
                   type="file"
                   class="sr-only"
+                  @change="createRecipeFileHandler($event)"
                 />
               </label>
               <p class="pl-1">or drag and drop</p>
@@ -79,8 +78,8 @@
           </div>
           <p class="text-xs text-gray-500 mt-3">
             {{
-              createRecipeForm.recipeImage
-                ? createRecipeForm.recipeImage.name
+              recipeForm.recipeImage
+                ? (recipeForm.recipeImage as File).name
                 : "No file selected"
             }}
           </p>
@@ -93,9 +92,9 @@
           >Recipe Category</label
         >
         <input
-          v-model="createRecipeForm.recipeCategory"
-          type="text"
           id="name"
+          v-model="recipeForm.recipeCategory"
+          type="text"
           name="name"
           class="mt-1 block w-full rounded-md border-none shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-3"
         />
@@ -105,28 +104,30 @@
           >Total number of steps:
           <span class="text-[#1bb380]">{{ totalNumberOfRecipeSteps }}</span>
 
-          <span class="block italic text-sm font-light text-gray-400"
+          <span
+            v-if="!isRecipeFormUpdateMode"
+            class="block italic text-sm font-light text-gray-400"
             >(Click the below button to add a new step to your recipe)</span
           >
         </label>
       </div>
 
       <button
+        v-if="!isRecipeFormUpdateMode"
         type="button"
         class="bg-teal-500 text-white py-2 px-4 rounded-md hover:bg-teal-600 focus:outline-none focus:bg-teal-600"
-        @click="addRecipeStep"
+        @click="showRecipeForm"
       >
         Add a recipe step
       </button>
-
-      <ul v-if="recipeSteps.length > 0">
+      <ul v-if="totalNumberOfRecipeSteps > 0">
         <h3 class="ml-2 mb-4 text-xl font-bold text-indigo-700">
           Recipe Steps
         </h3>
         <li
-          class="flex items-center justify-between border-2 border-teal-500 border-dashed rounded-md p-4 m-2"
-          v-for="recipeStep in recipeSteps"
+          v-for="recipeStep in recipeForm.recipeSteps"
           :key="recipeStep.step"
+          class="flex items-center justify-between border-2 border-teal-500 border-dashed rounded-md p-4 m-2"
         >
           <p>
             <span class="mr-5 text-gray-700 font-bold text-xl"
@@ -136,7 +137,34 @@
               {{ recipeStep.stepDetails }}
             </span>
           </p>
-          <button type="button" @click="recipeStepPreviewHandler(recipeStep)">
+
+          <button
+            v-if="isRecipeFormUpdateMode"
+            type="button"
+            @click="recipeUpdateHandler(recipeStep)"
+          >
+            <svg
+              class="feather feather-edit-2"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"
+              />
+            </svg>
+          </button>
+          <button
+            v-else
+            type="button"
+            @click="recipeStepPreviewHandler(recipeStep)"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
@@ -164,9 +192,15 @@
       </ul>
 
       <RecipeStep
-        v-if="showRecipeStepForm"
+        v-if="showRecipeStepForm && !isRecipeFormUpdateMode"
         @cancel-recipe-step-form="showRecipeStepForm = false"
         @recipe-step-form-data-submit="recipeStepFormDataHandler"
+      />
+      <RecipeStep
+        v-else-if="showRecipeStepForm && isRecipeFormUpdateMode"
+        :stepValues="updateModeCurrentSelectedRecipeStep"
+        @cancel-recipe-step-form="showRecipeStepForm = false"
+        @recipe-step-form-data-submit="updateRecipeStepFormData"
       />
 
       <Modal
@@ -183,26 +217,30 @@
 
       <div>
         <label class="block text-xl font-medium text-gray-600"
-          >Number of ingredients: <span class="text-[#1bb380]">4</span>
-          <span class="block italic text-sm font-light text-gray-400"
+          >Number of ingredients:
+          <span class="text-[#1bb380]">{{ totalNumberOfIngredients }}</span>
+          <span
+            v-if="!isRecipeFormUpdateMode"
+            class="block italic text-sm font-light text-gray-400"
             >(Click the below button to add an ingredient)</span
           >
         </label>
       </div>
       <button
+        v-if="!isRecipeFormUpdateMode"
         type="button"
         class="bg-teal-500 text-white py-2 px-4 rounded-md hover:bg-teal-600 focus:outline-none focus:bg-teal-600"
-        @click="addIngredient"
+        @click="showIngredientFormHandler"
       >
         Add an ingredient
       </button>
 
-      <ul v-if="ingredients.length > 0">
+      <ul v-if="totalNumberOfIngredients > 0">
         <h3 class="ml-2 mb-4 text-xl font-bold text-indigo-700">Ingredients</h3>
         <li
-          class="flex items-center justify-between border-2 border-teal-500 border-dashed rounded-md p-4 m-2"
-          v-for="ingredient in ingredients"
+          v-for="ingredient in recipeForm.ingredients"
           :key="ingredient.name"
+          class="flex items-center justify-between border-2 border-teal-500 border-dashed rounded-md p-4 m-2"
         >
           <p>
             <span class="mr-5 text-gray-700 font-bold text-xl"
@@ -212,7 +250,34 @@
               {{ ingredient.quantity }}
             </span>
           </p>
-          <button type="button" @click="ingredientPreviewHandler(ingredient)">
+          <button
+            v-if="isRecipeFormUpdateMode"
+            type="button"
+            @click="updateIngredientHandler(ingredient)"
+          >
+            <svg
+              class="feather feather-edit-2"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"
+              />
+            </svg>
+          </button>
+
+          <button
+            v-else
+            type="button"
+            @click="ingredientPreviewHandler(ingredient)"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
@@ -238,10 +303,17 @@
           </button>
         </li>
       </ul>
+
       <RecipeIngredient
-        v-if="showIngredientForm"
+        v-if="showIngredientForm && !isRecipeFormUpdateMode"
         @cancel-ingredient-form="showIngredientForm = false"
         @ingredient-form-data-submit="ingredientFormDataSubmit"
+      />
+      <RecipeIngredient
+        v-else-if="showIngredientForm && isRecipeFormUpdateMode"
+        :ingredientValues="updateModeCurrentSelectedIngredient"
+        @cancel-ingredient-form="showIngredientForm = false"
+        @ingredient-form-data-submit="updateIngredientFormData"
       />
       <Modal
         v-if="isIngredientPreviewModalOpen"
@@ -257,9 +329,9 @@
 
       <div>
         <button
-          @click="createRecipeFormSubmitHandler($event)"
-          type="submit"
           class="w-full bg-indigo-500 text-white py-2 px-4 rounded-md hover:bg-indigo-600 focus:outline-none focus:bg-indigo-600"
+          type="submit"
+          @click="recipeFormSubmitHandler($event)"
         >
           Submit
         </button>
@@ -271,14 +343,26 @@
 
 <script lang="ts" setup>
   import { RecipeFileNamingConstants } from "~/constants/namingContants";
-  import RecipeService from "~/services/RecipeService";
-  import type { Recipe } from "~/types/Recipe";
+  import type { ImagePreviewProps } from "~/types/ImagePreview";
+  import type {
+    IngredientForm,
+    RecipeForm,
+    RecipeFormProps,
+    RecipeStepForm,
+  } from "~/types/Recipe";
 
   const props = defineProps<{
-    formValues?: Recipe;
+    formValues?: RecipeFormProps;
+    externalFormDataHandler: (recipe: FormData) => Promise<void>;
   }>();
 
-  const createRecipeForm = ref({
+  const isRecipeFormUpdateMode = computed(() => {
+    return !!props.formValues;
+  });
+
+  const updateModeCurrentSelectedIngredient = ref<any>(null);
+  const updateModeCurrentSelectedRecipeStep = ref<any>(null);
+  const recipeForm = ref<RecipeForm>({
     name: "",
     recipeImage: null,
     description: "",
@@ -287,113 +371,164 @@
     ingredients: [],
     recipeSteps: [],
   });
-  const recipeStepImagePreviewProps = ref({});
+  const recipeStepImagePreviewProps = ref<ImagePreviewProps>(
+    {} as ImagePreviewProps
+  );
   const isRecipeModalOpen = ref(false);
   const showRecipeStepForm = ref(false);
-  const recipeSteps = ref<any>([]);
   const showIngredientForm = ref(false);
   const isIngredientPreviewModalOpen = ref(false);
-  const ingredientPreviewProps = ref({});
-  const ingredients = ref<any>([]);
+  const ingredientPreviewProps = ref<ImagePreviewProps>(
+    {} as ImagePreviewProps
+  );
 
   const isRecipeSubmitFormLoading = ref(false);
 
+  const totalNumberOfIngredients = computed(() => {
+    return recipeForm.value.ingredients.length;
+  });
   const totalNumberOfRecipeSteps = computed(() => {
-    return recipeSteps.value.length;
+    return recipeForm.value.recipeSteps.length;
   });
 
   onMounted(() => {
-    console.log("Create recipe form on mounted", toRaw(props.formValues));
-
     const formValues = toRaw(props.formValues);
     if (!formValues) return;
-    createRecipeForm.value.name = formValues.name;
-    // createRecipeForm.value.recipeImage = formValues.recipeImage;
-    createRecipeForm.value.description = formValues.description;
-    createRecipeForm.value.totalSteps = formValues.totalSteps;
-    createRecipeForm.value.recipeCategory = formValues.recipeCategory;
-    ingredients.value = formValues.ingredients.map(
-      ({ imageFile, name, quantity, measurement }) => ({
-        imageFile,
-        name,
-        quantity,
-        measurement,
-      })
+
+    if (typeof formValues.recipeImage === "string") {
+      const convertedFile = base64ToFile(
+        formValues.recipeImage?.split("base64,")[1] as string,
+        "recipeImage"
+      );
+      recipeForm.value.recipeImage = convertedFile;
+    } else {
+      recipeForm.value.recipeImage = formValues.recipeImage;
+    }
+    recipeForm.value.name = formValues.name;
+    recipeForm.value.description = formValues.description;
+    recipeForm.value.totalSteps = formValues.totalSteps;
+    recipeForm.value.recipeCategory = formValues.recipeCategory;
+    recipeForm.value.ingredients = formValues.ingredients.map(
+      ({ id, imageFile, name, quantity, measurement }) => {
+        let convertedFile: File | string = imageFile!;
+        if (typeof imageFile === "string") {
+          convertedFile = base64ToFile(
+            imageFile?.split("base64,")[1] as string,
+            "recipeIngredient"
+          );
+        }
+        return {
+          id,
+          imageFile: convertedFile,
+          name,
+          quantity,
+          measurement,
+        };
+      }
     );
-    recipeSteps.value = formValues.steps.map(
-      ({ step, stepDetails, imageFile }) => ({
-        step,
-        stepDetails,
-        imageFile,
-      })
+    recipeForm.value.recipeSteps = formValues.steps.map(
+      ({ stepId, step, stepDetails, imageFile }) => {
+        let convertedFile: File | string = imageFile!;
+        if (typeof imageFile === "string") {
+          convertedFile = base64ToFile(
+            imageFile?.split("base64,")[1] as string,
+            "recipeStep"
+          );
+        }
+        return {
+          stepId,
+          step,
+          stepDetails,
+          imageFile: convertedFile,
+        };
+      }
     );
   });
 
   function recipeStepModalCloseHandler() {
     isRecipeModalOpen.value = false;
-    console.log("Recipe step modal closed");
   }
-  function addRecipeStep() {
+  // show recipe form on click of add recipe button
+  function showRecipeForm() {
     showRecipeStepForm.value = true;
-    console.log("Add a recipe step");
   }
-  function createRecipeFileHandler(event) {
-    createRecipeForm.value.recipeImage = event.target.files[0];
+  // setting file for recipe image
+  function createRecipeFileHandler(event: Event) {
+    recipeForm.value.recipeImage = (event.target as HTMLInputElement)
+      .files?.[0] as File;
   }
-  function ingredientPreviewHandler(ingredient) {
-    console.log("Ingredient preview clicked");
-    ingredientPreviewProps.value.imageFile = ingredient.imageFile;
+  function updateIngredientHandler(ingredient: IngredientForm) {
+    showIngredientForm.value = true;
+    updateModeCurrentSelectedIngredient.value = ingredient;
+  }
+
+  function recipeUpdateHandler(recipeStep: RecipeStepForm) {
+    showRecipeStepForm.value = true;
+    updateModeCurrentSelectedRecipeStep.value = recipeStep;
+  }
+  function ingredientPreviewHandler(ingredient: IngredientForm) {
     ingredientPreviewProps.value.properties = {
       ingredient_name: ingredient.name,
       quantity: ingredient.quantity,
       measurement: ingredient.measurement,
     };
     ingredientPreviewProps.value.previewName = "Ingredient";
-    ingredientPreviewProps.value.imageFile = ingredient.imageFile;
+    ingredientPreviewProps.value.imageFile = ingredient.imageFile as
+      | File
+      | string;
 
     isIngredientPreviewModalOpen.value = true;
   }
 
+  function updateIngredientFormData(ingredientFormData: IngredientForm) {
+    recipeForm.value.ingredients[
+      recipeForm.value.ingredients.findIndex(
+        (ingredient) => ingredient.id === ingredientFormData.id
+      )
+    ] = ingredientFormData;
+    showIngredientForm.value = false;
+  }
   function ingredientModalCloseHandler() {
     isIngredientPreviewModalOpen.value = false;
   }
-  function addIngredient() {
+  function showIngredientFormHandler() {
     showIngredientForm.value = true;
-    console.log("Add an ingredient clicked");
   }
-  function recipeStepPreviewHandler(recipeStep) {
+  function recipeStepPreviewHandler(recipeStep: RecipeStepForm) {
     isRecipeModalOpen.value = true;
     recipeStepImagePreviewProps.value.previewName = "Recipe Step";
-    recipeStepImagePreviewProps.value.imageFile = recipeStep.imageFile;
+    recipeStepImagePreviewProps.value.imageFile = recipeStep.imageFile as
+      | File
+      | string;
     recipeStepImagePreviewProps.value.properties = {
       recipe_step: recipeStep.step,
       step_details: recipeStep.stepDetails,
     };
   }
-  function ingredientFormDataSubmit(ingredientData) {
-    console.log(
-      "Receiving ingredient data from child component",
-      ingredientData
-    );
-
+  function ingredientFormDataSubmit(ingredientData: IngredientForm) {
     showIngredientForm.value = false;
-    ingredients.value.push(ingredientData);
-    ingredients.value = ingredients.value.sort((a, b) => a.name - b.name);
-
-    // setting ingredients form data to create recipe form
-    createRecipeForm.value.ingredients = ingredients.value;
+    recipeForm.value.ingredients.push(ingredientData);
   }
-  function recipeStepFormDataHandler(recipeStepData) {
-    recipeSteps.value.push(recipeStepData);
-    recipeSteps.value = recipeSteps.value.sort((a, b) => a.step - b.step);
+
+  function updateRecipeStepFormData(recipeStepData: RecipeStepForm) {
+    recipeForm.value.recipeSteps[
+      recipeForm.value.recipeSteps.findIndex(
+        (recipeStep) => recipeStep.stepId === recipeStepData.stepId
+      )
+    ] = recipeStepData;
     showRecipeStepForm.value = false;
-    // setting recipe steps form data to create recipe form
-    createRecipeForm.value.recipeSteps = recipeSteps.value;
-    console.log("Receiving recipe step data: ", recipeStepData);
   }
 
-  function resetCreateRecipeForm() {
-    createRecipeForm.value = {
+  function recipeStepFormDataHandler(recipeStepData: RecipeStepForm) {
+    showRecipeStepForm.value = false;
+    recipeForm.value.recipeSteps.push(recipeStepData);
+    recipeForm.value.recipeSteps = recipeForm.value.recipeSteps.sort(
+      (a, b) => a.step - b.step
+    );
+  }
+
+  function resetRecipeForm() {
+    recipeForm.value = {
       name: "",
       recipeImage: null,
       description: "",
@@ -402,21 +537,16 @@
       ingredients: [],
       recipeSteps: [],
     };
-    recipeSteps.value = [];
-    ingredients.value = [];
   }
 
-  async function createRecipeFormSubmitHandler(event) {
+  async function recipeFormSubmitHandler(event: Event) {
     event.preventDefault();
-    console.log("Create recipe form submitted", createRecipeForm.value);
-    createRecipeForm.value.totalSteps = totalNumberOfRecipeSteps.value;
+    recipeForm.value.totalSteps = totalNumberOfRecipeSteps.value;
     try {
       isRecipeSubmitFormLoading.value = true;
       const formData = new FormData();
 
-      for (const [key, value] of Object.entries(
-        toRaw(createRecipeForm.value)
-      )) {
+      for (const [key, value] of Object.entries(toRaw(recipeForm.value))) {
         if (key === "ingredients" || key === "recipeSteps") {
           for (const itm of value as Array<any>) {
             const imageFileName =
@@ -426,15 +556,14 @@
             formData.append(imageFileName, itm.imageFile);
             Reflect.deleteProperty(itm, "imageFile");
           }
-          console.log("Stringifying ", JSON.stringify(value));
           formData.append(key, JSON.stringify(value));
         } else {
-          formData.append(key, value);
+          formData.append(key, value as string | Blob);
         }
       }
-      await RecipeService.createNewRecipe(formData);
+      await props.externalFormDataHandler(formData);
       isRecipeSubmitFormLoading.value = false;
-      resetCreateRecipeForm();
+      resetRecipeForm();
     } catch (error) {
       isRecipeSubmitFormLoading.value = false;
       console.error(error);

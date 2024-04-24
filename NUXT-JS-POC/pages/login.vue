@@ -9,8 +9,8 @@
           Username
         </label>
         <input
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="username"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
           placeholder="Username"
         />
@@ -23,8 +23,8 @@
           Password
         </label>
         <input
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
           id="password"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
           type="password"
           placeholder="********"
         />
@@ -46,11 +46,6 @@
         </button>
       </div>
 
-      <div>
-        <pre>{{ status }}</pre>
-        <pre>{{ session?.user }}</pre>
-        <pre>{{ cookies }}</pre>
-      </div>
       <NuxtLink
         class="text-[#2d82d6] underline hover:text-blue-700"
         to="/signup"
@@ -64,7 +59,7 @@
   definePageMeta({
     middleware: "guest-only",
   });
-  const { signIn, signOut, session, status, cookies, getProviders } = useAuth();
+  const { signIn } = useAuth();
 </script>
 
 <style></style>
