@@ -16,6 +16,8 @@ export default defineNuxtConfig({
     storesDirs: ["./stores/**"],
   },
   authJs: {
+    guestRedirectTo: process.env.NUXT_GITHUB_GUEST_REDIRECT,
+    authenticatedRedirectTo: process.env.NUXT_GITHUB_AUTHENTICATED_REDIRECT,
     // where to redirect if the user is authenticated
     baseUrl: process.env.NUXT_NEXTAUTH_URL, // should be something like https://www.my-app.com
   },
