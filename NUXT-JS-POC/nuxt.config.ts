@@ -16,9 +16,7 @@ export default defineNuxtConfig({
     storesDirs: ["./stores/**"],
   },
   authJs: {
-    verifyClientOnEveryRequest: true,
-    guestRedirectTo: "/", // where to redirect if the user is not authenticated
-    authenticatedRedirectTo: "/", // where to redirect if the user is authenticated
+    // where to redirect if the user is authenticated
     baseUrl: process.env.NUXT_NEXTAUTH_URL, // should be something like https://www.my-app.com
   },
   runtimeConfig: {
