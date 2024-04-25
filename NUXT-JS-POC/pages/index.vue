@@ -45,7 +45,13 @@
       </div>
     </div>
   </div>
+  Logged in user details:
+  <pre>
 
+{{ user }}
+
+</pre
+  >
   <div>
     <p v-if="isLoading" class="text-center">Loading..."></p>
     <RecipeCard
@@ -60,12 +66,11 @@
 </template>
 
 <script lang="ts" setup>
-  definePageMeta({
-    middleware: "auth",
-  });
+  definePageMeta({ middleware: "auth", auth: { guestRedirectTo: "/login" } });
 
   const router = useRouter();
   const isLoading = ref(false);
+  const { user } = useAuth();
 
   const { getAllRecipes, filterRecipeCards } = useRecipeStore();
   const { recipeCardData, recipeCategories } = storeToRefs(useRecipeStore());

@@ -34,7 +34,10 @@ export class PostgresDBClient {
   static getClient(): PoolClient {
     return PostgresDBClient._clientInstance;
   }
-
+  static getPool(): Pool {
+    PostgresDBClient.init();
+    return PostgresDBClient._poolInstance;
+  }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static query(text: string, params: any[] = []): Promise<pg.QueryResult<any>> {
     return PostgresDBClient._poolInstance.query(text, params);

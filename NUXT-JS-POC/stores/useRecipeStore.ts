@@ -14,7 +14,7 @@ export const useRecipeStore = defineStore("recipe-store", () => {
     return temp;
   });
 
-  async function getAllRecipes() {
+  async function getAllRecipes(): Promise<void> {
     const { data, error, pending } = await useAsyncData("item", () =>
       $fetch<{ recipes: Recipe[] }>("/api/v1/recipes/all")
     );
@@ -40,7 +40,7 @@ export const useRecipeStore = defineStore("recipe-store", () => {
   function filterRecipeCards(
     searchText: string,
     filterByTagName: boolean = false
-  ) {
+  ): void {
     recipeCardData.value = _recipeCardDataReference.value.filter((recipe) => {
       if (searchText === "ALL") {
         return true;
@@ -57,7 +57,7 @@ export const useRecipeStore = defineStore("recipe-store", () => {
     });
   }
 
-  async function deleteRecipeById(id: string) {
+  async function deleteRecipeById(id: string): Promise<void> {
     try {
       const result = await $fetch(`/api/v1/recipes/${id}/delete`, {
         method: "DELETE",
@@ -72,7 +72,7 @@ export const useRecipeStore = defineStore("recipe-store", () => {
     }
   }
 
-  async function getRecipeById(id: string) {
+  async function getRecipeById(id: string): Recipe {
     if (recipes.value.length === 0) {
       await getAllRecipes();
     }
@@ -98,7 +98,7 @@ export const useRecipeStore = defineStore("recipe-store", () => {
   async function updateRecipeById(
     updatedRecipeData: FormData,
     recipeId: string
-  ) {
+  ): Promise<void> {
     const { error } = await useFetch(`/api/v1/recipes/${recipeId}/update`, {
       method: "POST",
       headers: {

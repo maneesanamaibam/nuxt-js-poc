@@ -44,6 +44,15 @@
         >
           Sign In With Github
         </button>
+
+        OR
+        <button
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+          @click="signIn('google')"
+        >
+          Sign In With Google
+        </button>
       </div>
 
       <NuxtLink
@@ -58,6 +67,7 @@
 <script lang="ts" setup>
   definePageMeta({
     middleware: "guest-only",
+    auth: { authenticatedRedirectTo: "/" },
   });
   const { signIn } = useAuth();
 </script>

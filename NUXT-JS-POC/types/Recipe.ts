@@ -1,14 +1,3 @@
-interface Recipe {
-  id: string;
-  name: string;
-  totalSteps: number;
-  description: string;
-  recipeImage: File | null | string;
-  recipeCategory: string;
-  ingredients: Ingredient[];
-  steps: RecipeStep[];
-}
-
 interface Ingredient {
   id: string;
   imageFile: File | null | string;
@@ -25,6 +14,18 @@ interface RecipeStep {
   recipeId: string;
   imageFile: File | null | string;
 }
+
+interface Recipe {
+  id: string;
+  name: string;
+  totalSteps: number;
+  description: string;
+  recipeImage: File | null | string;
+  recipeCategory: string;
+  ingredients: Ingredient[];
+  steps: RecipeStep[];
+}
+
 type RecipeStepForm = Pick<RecipeStep, "step" | "stepDetails" | "imageFile"> & {
   stepId?: string;
 };
