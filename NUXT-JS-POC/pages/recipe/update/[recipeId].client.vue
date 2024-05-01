@@ -10,8 +10,10 @@
 
 <script lang="ts" setup>
   import type { RecipeFormProps } from "~/types/Recipe";
-
-  const recipeId = useRoute().params.recipeId as string;
+  definePageMeta({
+    middleware: "auth",
+  });
+  const recipeId = useRoute().params.recipeId;
 
   const { getRecipeById, updateRecipeById } = useRecipeStore();
 

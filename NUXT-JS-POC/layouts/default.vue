@@ -7,7 +7,7 @@
         class="w-12 h-12 block mr-2"
       />
       <h2 class="text-[#450a0a] text-semi-bold text-3xl p-2 block mr-2">
-        Recipe Home Page
+        Food Recipe
       </h2>
       <div class="flex items-end justify-end w-[50%]">
         <NuxtLink
@@ -21,7 +21,7 @@
           v-if="status === 'authenticated'"
           type="button"
           class="p-3 text-[#022c22] font-semibold rounded-md bg-[#e0f2fe] m-2"
-          @click="signOut()"
+          @click="signOut"
         >
           Logout
         </button>
@@ -45,6 +45,13 @@
           class="p-3 text-[#022c22] font-semibold rounded-md bg-[#e0f2fe] m-2"
         >
           Recipe Update Center
+        </NuxtLink>
+
+        <NuxtLink
+          to="/user-profile"
+          class="p-3 text-[#022c22] font-semibold rounded-md bg-[#e0f2fe] m-2"
+        >
+          Profile
         </NuxtLink>
       </div>
     </div>

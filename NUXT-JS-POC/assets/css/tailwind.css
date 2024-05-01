@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .parallelogram-recipe-category {
+    clip-path: polygon(10% 10%, 100% 10%, 90% 90%, 0% 90%);
+  }
+}
+
+@layer components {
+  .recipe-badge-gradient {
+    @apply bg-gradient-to-tr from-secondary-moonstone-150  to-secondary-vanilla-200 opacity-80 rounded-md;
+  }
+}

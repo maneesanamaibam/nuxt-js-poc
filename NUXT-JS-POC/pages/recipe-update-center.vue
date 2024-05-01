@@ -2,8 +2,16 @@
   <div class="flex justify-center items-center mb-4 gap-5">
     <div>
       <span
-        class="inline-block bg-blue-500 text-white text-xs font-semibold px-3 py-2 m-2 uppercase rounded-lg hover:cursor-pointer"
-        >New</span
+        class="inline-block bg-primary-red-150 text-white text-xs font-semibold px-3 py-2 m-2 uppercase rounded-lg hover:cursor-pointer"
+        @click="filterRecipeCards('ALL')"
+        >ALL</span
+      >
+      <span
+        v-for="tag in recipeCategories"
+        :key="tag"
+        class="inline-block bg-secondary-moonstone-100 text-white text-xs font-semibold px-3 py-2 m-2 uppercase rounded-lg hover:cursor-pointer"
+        @click="filterRecipeCards(tag)"
+        >{{ tag }}</span
       >
     </div>
     <div class="relative">
@@ -11,6 +19,11 @@
         type="text"
         class="block w-full py-2 pl-10 pr-4 leading-tight bg-white border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
         placeholder="Search..."
+        @input="
+          filterRecipeCards(
+            ($event.target as HTMLInputElement).value.trim().toLowerCase()
+          )
+        "
       />
       <div
         class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
@@ -45,13 +58,13 @@
         <template #recipe-card-actions>
           <div class="flex gap-2">
             <button
-              class="bg-red-500 text-white p-2 rounded-md"
+              class="bg-secondary-vanilla-200 min-w-[120px] text-white p-2 rounded-md"
               @click="deleteRecipe(recipe.id as string)"
             >
               Delete Recipe
             </button>
             <button
-              class="bg-blue-500 text-white p-2 rounded-md"
+              class="bg-secondary-moonstone-150 text-white min-w-[120px] p-2 rounded-md"
               @click="updateRecipe(recipe.id as string)"
             >
               Update Recipe
@@ -60,7 +73,11 @@
         </template>
       </RecipeCard>
     </div>
+    <div class="text-xl text-primary-red-100 text-center pt-4" v-else>
+      No recipe found !
+    </div>
   </div>
+  <Loading v-if="isLoading" />
   <!-- <RecipeCard /> -->
 </template>
 
@@ -68,20 +85,24 @@
   definePageMeta({
     middleware: "auth",
   });
-
+  const isLoading = ref(false);
   const router = useRouter();
-  const { getAllRecipes, deleteRecipeById } = useRecipeStore();
-  const { recipeCardData } = storeToRefs(useRecipeStore());
+  const { getAllRecipes, deleteRecipeById, filterRecipeCards } =
+    useRecipeStore();
+  const { recipeCardData, recipeCategories } = storeToRefs(useRecipeStore());
   await useAsyncData("recipe-store", () => getAllRecipes().then(() => true));
 
-  function deleteRecipe(recipeId: string) {
-    deleteRecipeById(recipeId);
-  }
   function updateRecipe(recipeId: string) {
     router.push({ name: "recipe-update-recipeId", params: { recipeId } });
   }
   function recipeCardNavigationHandler(recipeId: string) {
     router.push({ name: "recipe-recipeId", params: { recipeId } });
+  }
+
+  async function deleteRecipe(id: string) {
+    isLoading.value = true;
+    await deleteRecipeById(id);
+    isLoading.value = false;
   }
   onMounted(async () => {
     await getAllRecipes();

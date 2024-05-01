@@ -76,14 +76,11 @@ export default async function updateRecipeById(
       "INSERT INTO recipe_categories (category_name) VALUES ($1);",
       [recipeData[0]]
     );
-  } else {
-    await PostgresDBClient.query(
-      `UPDATE recipe_categories SET category_name=$1;`,
-      [recipeData[0]]
-    );
   }
 
   // INSERT RECIPE
+  // console.log(recipeData);
+
   await PostgresDBClient.query(
     `UPDATE recipes SET recipe_category=$2,name=$3, recipe_image=$4, description=$5, total_steps=$6 WHERE id=$1;`,
     [recipeId, ...recipeData]

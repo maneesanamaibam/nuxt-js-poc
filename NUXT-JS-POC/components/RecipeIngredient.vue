@@ -89,26 +89,57 @@
             name="measurement"
             class="block w-full rounded-md border-none shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-3"
           >
-            <option value="Ounce">Ounce</option>
-            <option value="Gram">Gram</option>
-            <option value="Milliliter">Milliliter</option>
-            <option value="Teaspoon">Teaspoon</option>
-            <option value="Cup">Cup</option>
+            <option
+              v-for="(unit, i) of measurementsUnits"
+              :key="i"
+              :value="unit"
+            >
+              {{ unit }}
+            </option>
           </select>
         </div>
       </div>
       <div class="mt-4">
         <label
           for="newMeasurement"
-          class="block text-sm font-medium text-gray-700"
-          >Add New Measurement</label
+          class="block text-sm font-medium text-gray-700 flex gap-2 mb-3"
+          >Add New Measurement
+          <img
+            src="/assets/plus.png"
+            class="w-[20px] cursor-pointer"
+            alt="plus-icon"
+            @click="ingredientNewMeasurementForm.showForm = true"
+          />
+        </label>
+
+        <div
+          v-if="ingredientNewMeasurementForm.showForm"
+          class="flex justify-between items-center gap-2"
         >
-        <input
-          id="newMeasurement"
-          type="text"
-          name="newMeasurement"
-          class="mt-1 block w-full rounded-md border-none shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-3"
-        />
+          <input
+            id="newMeasurement"
+            v-model="ingredientNewMeasurementForm.measurementUnit"
+            type="text"
+            name="newMeasurement"
+            class="mt-1 block w-full h-[50px] rounded-md border-none shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-2"
+          />
+          <div class="flex flex-col gap-2">
+            <button
+              type="button"
+              class="bg-secondary-moonstone-150 text-white p-1 px-2 rounded-md hover:bg-secondary-moonstone-200 focus:outline-none focus:bg-indigo-600 mt-3 text-sm"
+              @click="addNewMeasurementUnit"
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              class="bg-primary-red-150 text-white p-1 px-2 rounded-md hover:bg-primary-red-200 focus:outline-none focus:bg-indigo-600 text-sm"
+              @click="ingredientNewMeasurementForm.showForm = false"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -128,7 +159,7 @@
         </button>
       </div>
     </form>
-    ingredientValues {{ props }}
+    <Loading v-if="isLoading" />
   </div>
 </template>
 
@@ -143,18 +174,32 @@
     ingredientValues?: IngredientForm;
   }>();
 
+  const isLoading = ref<boolean>(false);
+  const ingredientNewMeasurementForm = ref({
+    showForm: false,
+    measurementUnit: "",
+  });
   const ingredientForm = ref<IngredientForm>({
     imageFile: null,
-    measurement: "",
+    measurement: "Select",
     name: "",
     quantity: 0,
   });
-
+  const measurementsUnits = ref<string[]>([]);
   const isRecipeIngredientUpdateMode = computed(() => {
     return !!props.ingredientValues;
   });
 
-  onMounted(() => {
+  onMounted(async () => {
+    try {
+      const result = await $fetch<{ measurements: string[] }>(
+        "/api/v1/recipes/measurements"
+      );
+      measurementsUnits.value = result.measurements;
+    } catch (err) {
+      console.error(err);
+    }
+
     if (isRecipeIngredientUpdateMode.value) {
       ingredientForm.value = structuredClone(
         toRaw(props.ingredientValues)
@@ -198,6 +243,31 @@
       resetIngredientForm();
     } else {
       console.error("Error while submitting ingredient form");
+    }
+  }
+
+  async function addNewMeasurementUnit() {
+    const newMeasurementUnit =
+      ingredientNewMeasurementForm.value.measurementUnit;
+    if (!ingredientNewMeasurementForm) return;
+    const capitalizedMeasurementUnit =
+      newMeasurementUnit.charAt(0).toUpperCase() + newMeasurementUnit.slice(1);
+
+    try {
+      isLoading.value = true;
+      await $fetch("api/v1/recipes/measurement", {
+        method: "POST",
+        body: {
+          unit: capitalizedMeasurementUnit,
+        },
+      });
+
+      measurementsUnits.value.push(capitalizedMeasurementUnit);
+      isLoading.value = false;
+      ingredientNewMeasurementForm.value.showForm = false;
+    } catch (err) {
+      console.error("getting error", err);
+      isLoading.value = false;
     }
   }
 </script>

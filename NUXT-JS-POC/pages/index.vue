@@ -2,14 +2,14 @@
   <div class="flex justify-center items-center mb-4 gap-5">
     <div>
       <span
-        class="inline-block bg-blue-500 text-white text-xs font-semibold px-3 py-2 m-2 uppercase rounded-lg hover:cursor-pointer"
+        class="inline-block bg-primary-green-150 text-white text-xs font-semibold px-3 py-2 m-2 uppercase rounded-lg hover:cursor-pointer"
         @click="filterByTagName('ALL')"
         >ALL</span
       >
       <span
         v-for="tag in recipeCategories"
         :key="tag"
-        class="inline-block bg-blue-500 text-white text-xs font-semibold px-3 py-2 m-2 uppercase rounded-lg hover:cursor-pointer"
+        class="inline-block bg-secondary-moonstone-100 text-white text-xs font-semibold px-3 py-2 m-2 uppercase rounded-lg hover:cursor-pointer"
         @click="filterByTagName(tag)"
         >{{ tag }}</span
       >
@@ -20,7 +20,7 @@
         type="text"
         placeholder="Search..."
         @input="
-          filterRecipes(
+          filterRecipeCards(
             ($event.target as HTMLInputElement).value.trim().toLowerCase()
           )
         "
@@ -45,15 +45,8 @@
       </div>
     </div>
   </div>
-  Logged in user details:
-  <pre>
-
-{{ user }}
-
-</pre
-  >
   <div>
-    <p v-if="isLoading" class="text-center">Loading..."></p>
+    <Loading v-if="isLoading" class="text-center" />
     <RecipeCard
       v-for="recipe in recipeCardData"
       v-else
@@ -61,8 +54,13 @@
       :key="recipe.id"
       @click="recipeCardNavigationHandler(recipe.id as string)"
     />
+    <div
+      class="text-xl text-primary-red-100 text-center pt-4"
+      v-if="recipeCardData.length === 0"
+    >
+      No recipe found !
+    </div>
   </div>
-  <!-- <RecipeCard /> -->
 </template>
 
 <script lang="ts" setup>
@@ -75,10 +73,6 @@
   const { getAllRecipes, filterRecipeCards } = useRecipeStore();
   const { recipeCardData, recipeCategories } = storeToRefs(useRecipeStore());
   await useAsyncData("recipe-store", () => getAllRecipes().then(() => true));
-
-  function filterRecipes(recipeSearchText: string) {
-    filterRecipeCards(recipeSearchText);
-  }
 
   function filterByTagName(tagName: string) {
     filterRecipeCards(tagName, true);

@@ -562,8 +562,9 @@
         }
       }
       await props.externalFormDataHandler(formData);
-      isRecipeSubmitFormLoading.value = false;
       resetRecipeForm();
+      isRecipeSubmitFormLoading.value = false;
+      navigateTo({ path: "/" });
     } catch (error) {
       isRecipeSubmitFormLoading.value = false;
       console.error(error);

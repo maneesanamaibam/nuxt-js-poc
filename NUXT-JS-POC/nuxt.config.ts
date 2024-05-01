@@ -35,6 +35,16 @@ export default defineNuxtConfig({
     emitError: false,
     emitWarning: false,
   },
+  tailwindcss: {
+    cssPath: ["~/assets/css/tailwind.css", { injectPosition: "first" }],
+    configPath: "tailwind.config.js",
+    exposeConfig: {
+      level: 2,
+    },
+    config: {},
+    viewer: true,
+  },
+
   hooks: {
     listen: () => {
       createDBTables();

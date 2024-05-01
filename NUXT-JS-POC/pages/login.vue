@@ -1,66 +1,36 @@
 <template>
-  <div class="flex justify-center items-center h-screen bg-gray-100">
-    <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 max-w-md">
-      <div class="mb-4">
-        <label
-          class="block text-gray-700 text-sm font-bold mb-2"
-          for="username"
-        >
-          Username
-        </label>
-        <input
-          id="username"
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          type="text"
-          placeholder="Username"
-        />
-      </div>
-      <div class="mb-6">
-        <label
-          class="block text-gray-700 text-sm font-bold mb-2"
-          for="password"
-        >
-          Password
-        </label>
-        <input
-          id="password"
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-          type="password"
-          placeholder="********"
-        />
-      </div>
-      <div class="flex items-center justify-between gap-3 mb-3">
+  <div
+    class="bg-white shadow-md max-w-[700px] m-auto mt-4 py-3 flex justify-center"
+  >
+    <div
+      class="border-[1px] border-secondary-vanilla-100 py-4 w-[95%] flex flex-col justify-center items-center mx-0"
+    >
+      <h4
+        class="text-2xl uppercase font-semibold text-secondary-moonstone-200 underline"
+      >
+        Login
+      </h4>
+      <div
+        class="rounded p-8 mb-4 max-w-md flex items-center flex-col mt-4 gap-4 justify-center"
+      >
         <button
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          type="button"
-        >
-          Log In
-        </button>
-        OR
-        <button
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          class="bg-secondary-moonstone-200 hover:bg-secondary-moonstone-150 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           type="button"
           @click="signIn('github')"
         >
-          Sign In With Github
+          Sign in with Github
         </button>
 
-        OR
+        <span class="text-xl"> OR </span>
         <button
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          class="bg-secondary-moonstone-200 hover:bg-secondary-moonstone-150 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           type="button"
           @click="signIn('google')"
         >
-          Sign In With Google
+          Sign in with Google
         </button>
       </div>
-
-      <NuxtLink
-        class="text-[#2d82d6] underline hover:text-blue-700"
-        to="/signup"
-        >Create an Account</NuxtLink
-      >
-    </form>
+    </div>
   </div>
 </template>
 
