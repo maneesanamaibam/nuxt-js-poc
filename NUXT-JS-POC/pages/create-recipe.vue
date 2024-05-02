@@ -9,6 +9,10 @@
     middleware: "auth",
   });
 
+  useHead({
+    title: "Create Recipe",
+  });
+
   const { createNewRecipe } = useRecipeStore();
 
   async function createRecipeFormDataExternalHandlerFunction(

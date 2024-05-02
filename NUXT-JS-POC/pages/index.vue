@@ -64,11 +64,20 @@
 </template>
 
 <script lang="ts" setup>
+  import recipeImage from "../assets/recipe.png";
   definePageMeta({ middleware: "auth", auth: { guestRedirectTo: "/login" } });
+
+  useSeoMeta({
+    title: "Food Recipe",
+    ogTitle: "Food Recipe",
+    description: "Amazing website to get recipes of all kinds of food.",
+    ogDescription: "Amazing website to get recipes of all kinds of food.",
+    ogImage: () => recipeImage,
+    twitterCard: "summary_large_image",
+  });
 
   const router = useRouter();
   const isLoading = ref(false);
-  const { user } = useAuth();
 
   const { getAllRecipes, filterRecipeCards } = useRecipeStore();
   const { recipeCardData, recipeCategories } = storeToRefs(useRecipeStore());

@@ -6,6 +6,12 @@ export default defineNuxtConfig({
   alias: {
     cookie: resolve(__dirname, "node_modules/cookie"),
   },
+
+  routeRules: {
+    "/login": { prerender: true },
+    "/recipe-update-center": { ssr: false },
+    "/recipe/*": { swr: true },
+  },
   modules: [
     "@nuxtjs/tailwindcss",
     "@pinia/nuxt",
